@@ -1,0 +1,229 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "User profile with role authentication data",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string", "maxLength": 128 },
+        "email": { "type": "string", "format": "email", "maxLength": 150 },
+        "displayName": { "type": "string", "maxLength": 100 },
+        "role": { "type": "string", "enum": ["employee", "supervisor", "hr_admin", "super_admin"] },
+        "employeeId": { "type": "string", "maxLength": 50 },
+        "photoURL": { "type": "string", "maxLength": 500 },
+        "createdAt": { "type": "string" },
+        "updatedAt": { "type": "string" }
+      },
+      "required": ["uid", "email", "role"]
+    },
+    "Admin": {
+      "title": "Admin",
+      "description": "Trusted admin registry document for role validation",
+      "type": "object",
+      "properties": {
+        "email": { "type": "string", "format": "email", "maxLength": 150 },
+        "role": { "type": "string", "enum": ["hr_admin", "super_admin"] },
+        "addedAt": { "type": "string" }
+      },
+      "required": ["email", "role"]
+    },
+    "Employee": {
+      "title": "Employee",
+      "description": "DSI Employee record containing employment details and personal records",
+      "type": "object",
+      "properties": {
+        "employeeId": { "type": "string", "maxLength": 50 },
+        "userId": { "type": "string", "maxLength": 128 },
+        "name": { "type": "string", "maxLength": 100 },
+        "email": { "type": "string", "format": "email", "maxLength": 150 },
+        "mobile": { "type": "string", "maxLength": 30 },
+        "nationality": { "type": "string", "maxLength": 60 },
+        "department": { "type": "string", "maxLength": 80 },
+        "designation": { "type": "string", "maxLength": 80 },
+        "joiningDate": { "type": "string", "maxLength": 30 },
+        "reportingManager": { "type": "string", "maxLength": 100 },
+        "photoURL": { "type": "string", "maxLength": 500 },
+        "iqamaNumber": { "type": "string", "maxLength": 30 },
+        "iqamaExpiry": { "type": "string", "maxLength": 30 },
+        "passportNumber": { "type": "string", "maxLength": 30 },
+        "passportExpiry": { "type": "string", "maxLength": 30 },
+        "status": { "type": "string", "enum": ["active", "on_leave", "resigned", "terminated"] },
+        "annualLeaveBalance": { "type": "number" },
+        "sickLeaveBalance": { "type": "number" },
+        "emergencyLeaveBalance": { "type": "number" },
+        "unpaidLeaveBalance": { "type": "number" },
+        "createdAt": { "type": "string" },
+        "updatedAt": { "type": "string" }
+      },
+      "required": ["employeeId", "name", "email", "department", "designation"]
+    },
+    "LeaveRequest": {
+      "title": "LeaveRequest",
+      "description": "Employee leave request document",
+      "type": "object",
+      "properties": {
+        "requestNumber": { "type": "string", "maxLength": 50 },
+        "userId": { "type": "string", "maxLength": 128 },
+        "employeeId": { "type": "string", "maxLength": 50 },
+        "employeeName": { "type": "string", "maxLength": 100 },
+        "department": { "type": "string", "maxLength": 80 },
+        "leaveType": { "type": "string", "enum": ["Annual", "Sick", "Emergency", "Unpaid", "Paternity", "Hajj"] },
+        "startDate": { "type": "string", "maxLength": 30 },
+        "endDate": { "type": "string", "maxLength": 30 },
+        "days": { "type": "number" },
+        "reason": { "type": "string", "maxLength": 1000 },
+        "attachmentUrl": { "type": "string", "maxLength": 500 },
+        "attachmentName": { "type": "string", "maxLength": 150 },
+        "status": { "type": "string", "enum": ["pending", "approved", "rejected"] },
+        "supervisorNote": { "type": "string", "maxLength": 500 },
+        "reviewedBy": { "type": "string", "maxLength": 100 },
+        "reviewedAt": { "type": "string" },
+        "createdAt": { "type": "string" },
+        "updatedAt": { "type": "string" }
+      },
+      "required": ["requestNumber", "userId", "employeeId", "employeeName", "leaveType", "startDate", "endDate", "days", "reason", "status"]
+    },
+    "VehicleRequest": {
+      "title": "VehicleRequest",
+      "description": "Company vehicle transportation and dispatch request",
+      "type": "object",
+      "properties": {
+        "requestNumber": { "type": "string", "maxLength": 50 },
+        "userId": { "type": "string", "maxLength": 128 },
+        "employeeId": { "type": "string", "maxLength": 50 },
+        "employeeName": { "type": "string", "maxLength": 100 },
+        "department": { "type": "string", "maxLength": 80 },
+        "date": { "type": "string", "maxLength": 30 },
+        "requiredTime": { "type": "string", "maxLength": 30 },
+        "pickupLocation": { "type": "string", "maxLength": 200 },
+        "destination": { "type": "string", "maxLength": 200 },
+        "purpose": { "type": "string", "maxLength": 500 },
+        "passengersCount": { "type": "number" },
+        "remarks": { "type": "string", "maxLength": 500 },
+        "status": { "type": "string", "enum": ["pending", "approved", "rejected"] },
+        "assignedVehicle": { "type": "string", "maxLength": 100 },
+        "assignedDriver": { "type": "string", "maxLength": 100 },
+        "driverPhone": { "type": "string", "maxLength": 30 },
+        "supervisorNote": { "type": "string", "maxLength": 500 },
+        "reviewedBy": { "type": "string", "maxLength": 100 },
+        "reviewedAt": { "type": "string" },
+        "createdAt": { "type": "string" },
+        "updatedAt": { "type": "string" }
+      },
+      "required": ["requestNumber", "userId", "employeeId", "employeeName", "date", "requiredTime", "pickupLocation", "destination", "purpose", "passengersCount", "status"]
+    },
+    "OtherRequest": {
+      "title": "OtherRequest",
+      "description": "General and HR requests including certificates and overtime",
+      "type": "object",
+      "properties": {
+        "requestNumber": { "type": "string", "maxLength": 50 },
+        "userId": { "type": "string", "maxLength": 128 },
+        "employeeId": { "type": "string", "maxLength": 50 },
+        "employeeName": { "type": "string", "maxLength": 100 },
+        "department": { "type": "string", "maxLength": 80 },
+        "requestType": { "type": "string", "enum": ["certificate", "overtime", "salary_letter", "experience_letter", "other"] },
+        "title": { "type": "string", "maxLength": 150 },
+        "details": { "type": "string", "maxLength": 1000 },
+        "overtimeHours": { "type": "number" },
+        "status": { "type": "string", "enum": ["pending", "approved", "rejected"] },
+        "adminNote": { "type": "string", "maxLength": 500 },
+        "reviewedBy": { "type": "string", "maxLength": 100 },
+        "reviewedAt": { "type": "string" },
+        "createdAt": { "type": "string" },
+        "updatedAt": { "type": "string" }
+      },
+      "required": ["requestNumber", "userId", "employeeId", "employeeName", "requestType", "details", "status"]
+    },
+    "Announcement": {
+      "title": "Announcement",
+      "description": "Company-wide circulars and announcements for DSI staff",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string", "maxLength": 150 },
+        "content": { "type": "string", "maxLength": 2000 },
+        "category": { "type": "string", "enum": ["General", "HR", "Safety", "Operations", "Holiday"] },
+        "priority": { "type": "string", "enum": ["normal", "important", "urgent"] },
+        "authorName": { "type": "string", "maxLength": 100 },
+        "authorUid": { "type": "string", "maxLength": 128 },
+        "targetDepartment": { "type": "string", "maxLength": 80 },
+        "pinned": { "type": "boolean" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["title", "content", "category", "priority", "authorName", "authorUid"]
+    },
+    "Notification": {
+      "title": "Notification",
+      "description": "Direct in-app notification for employee updates",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string", "maxLength": 128 },
+        "employeeId": { "type": "string", "maxLength": 50 },
+        "title": { "type": "string", "maxLength": 150 },
+        "message": { "type": "string", "maxLength": 500 },
+        "type": { "type": "string", "enum": ["leave_update", "vehicle_update", "request_update", "announcement", "reminder"] },
+        "read": { "type": "boolean" },
+        "link": { "type": "string", "maxLength": 100 },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["userId", "title", "message", "type", "read"]
+    },
+    "EmployeeDocument": {
+      "title": "EmployeeDocument",
+      "description": "Official employee legal and employment records like Iqama and Passport",
+      "type": "object",
+      "properties": {
+        "employeeId": { "type": "string", "maxLength": 50 },
+        "userId": { "type": "string", "maxLength": 128 },
+        "title": { "type": "string", "maxLength": 100 },
+        "type": { "type": "string", "enum": ["iqama", "passport", "employee_id", "contract", "certificate", "other"] },
+        "documentNumber": { "type": "string", "maxLength": 50 },
+        "expiryDate": { "type": "string", "maxLength": 30 },
+        "fileUrl": { "type": "string", "maxLength": 500 },
+        "fileName": { "type": "string", "maxLength": 150 },
+        "fileSize": { "type": "string", "maxLength": 30 },
+        "uploadedAt": { "type": "string" },
+        "verified": { "type": "boolean" }
+      },
+      "required": ["employeeId", "title", "type"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "User",
+      "description": "User profile with role details and account credentials"
+    },
+    "/admins/{userId}": {
+      "schema": "Admin",
+      "description": "Trusted registry for administrative role resolution"
+    },
+    "/employees/{employeeId}": {
+      "schema": "Employee",
+      "description": "DSI Master employee registry"
+    },
+    "/leaveRequests/{requestId}": {
+      "schema": "LeaveRequest",
+      "description": "Employee leave submissions and approvals"
+    },
+    "/vehicleRequests/{requestId}": {
+      "schema": "VehicleRequest",
+      "description": "Vehicle booking requests with driver & vehicle assignments"
+    },
+    "/otherRequests/{requestId}": {
+      "schema": "OtherRequest",
+      "description": "Certificate, overtime, and letters requests"
+    },
+    "/announcements/{announcementId}": {
+      "schema": "Announcement",
+      "description": "Internal company broadcasts and executive notices"
+    },
+    "/notifications/{notificationId}": {
+      "schema": "Notification",
+      "description": "Personalized notifications and request status alerts"
+    },
+    "/documents/{documentId}": {
+      "schema": "EmployeeDocument",
+      "description": "Employee compliance and identification document attachments"
+    }
+  }
+}

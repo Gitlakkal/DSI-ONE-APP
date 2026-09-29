@@ -1,0 +1,6 @@
+{
+  "name": "DSI Employee Portal - Desert Sides International",
+  "description": "Modern and professional employee self-service and management portal for Desert Sides International (DSI), Dammam, Saudi Arabia.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

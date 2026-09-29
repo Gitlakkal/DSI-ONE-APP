@@ -1,0 +1,163 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Default deny all access
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Connection testing endpoint required by Firebase Skill
+    match /test/connection {
+      allow get: if true;
+    }
+
+    // Core security helper primitives
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function isBootstrappedAdmin() {
+      return isSignedIn() && (
+        request.auth.token.email == 'mohdiqballakkal@gmail.com' ||
+        request.auth.token.email.matches('.*@desertsides\\.com$')
+      );
+    }
+
+    function isAdmin() {
+      return isBootstrappedAdmin() || (
+        isSignedIn() && exists(/databases/$(database)/documents/admins/$(request.auth.uid))
+      );
+    }
+
+    function isSupervisorOrAdmin() {
+      return isAdmin() || (
+        isSignedIn() && (
+          (exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+           get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role in ['supervisor', 'hr_admin', 'super_admin'])
+        )
+      );
+    }
+
+    // --- 1. Admins Collection ---
+    match /admins/{userId} {
+      allow get: if isSignedIn() && (request.auth.uid == userId || isAdmin());
+      allow list: if isAdmin();
+      allow create, update, delete: if isBootstrappedAdmin() || (isAdmin() && isValidId(userId));
+    }
+
+    // --- 2. Users Collection ---
+    match /users/{userId} {
+      allow get: if isSignedIn() && (request.auth.uid == userId || isSupervisorOrAdmin());
+      allow list: if isSupervisorOrAdmin();
+      allow create: if isSignedIn() && request.auth.uid == userId && (
+        // Prevent normal users from assigning themselves admin role
+        (!incoming().role.matches('^(hr_admin|super_admin)$')) || isBootstrappedAdmin()
+      );
+      allow update: if isSignedIn() && (
+        (request.auth.uid == userId && (!incoming().diff(existing()).affectedKeys().hasAny(['role']))) ||
+        isAdmin()
+      );
+      allow delete: if isAdmin();
+    }
+
+    // --- 3. Employees Collection ---
+    match /employees/{employeeId} {
+      allow get: if isSignedIn() && (
+        isSupervisorOrAdmin() ||
+        (resource.data.userId == request.auth.uid) ||
+        (resource.data.email == request.auth.token.email)
+      );
+      allow list: if isSignedIn();
+      allow create, update, delete: if isSupervisorOrAdmin() || isAdmin();
+    }
+
+    // --- 4. Leave Requests Collection ---
+    match /leaveRequests/{requestId} {
+      allow get: if isSignedIn() && (
+        resource.data.userId == request.auth.uid ||
+        isSupervisorOrAdmin()
+      );
+      allow list: if isSignedIn();
+      allow create: if isSignedIn() && incoming().userId == request.auth.uid;
+      allow update: if isSignedIn() && (
+        isSupervisorOrAdmin() ||
+        (resource.data.userId == request.auth.uid && resource.data.status == 'pending')
+      );
+      allow delete: if isSupervisorOrAdmin();
+    }
+
+    // --- 5. Vehicle Requests Collection ---
+    match /vehicleRequests/{requestId} {
+      allow get: if isSignedIn() && (
+        resource.data.userId == request.auth.uid ||
+        isSupervisorOrAdmin()
+      );
+      allow list: if isSignedIn();
+      allow create: if isSignedIn() && incoming().userId == request.auth.uid;
+      allow update: if isSignedIn() && (
+        isSupervisorOrAdmin() ||
+        (resource.data.userId == request.auth.uid && resource.data.status == 'pending')
+      );
+      allow delete: if isSupervisorOrAdmin();
+    }
+
+    // --- 6. Other Requests Collection ---
+    match /otherRequests/{requestId} {
+      allow get: if isSignedIn() && (
+        resource.data.userId == request.auth.uid ||
+        isSupervisorOrAdmin()
+      );
+      allow list: if isSignedIn();
+      allow create: if isSignedIn() && incoming().userId == request.auth.uid;
+      allow update: if isSignedIn() && (
+        isSupervisorOrAdmin() ||
+        (resource.data.userId == request.auth.uid && resource.data.status == 'pending')
+      );
+      allow delete: if isSupervisorOrAdmin();
+    }
+
+    // --- 7. Announcements Collection ---
+    match /announcements/{announcementId} {
+      allow read: if isSignedIn();
+      allow create, update, delete: if isSupervisorOrAdmin();
+    }
+
+    // --- 8. Notifications Collection ---
+    match /notifications/{notificationId} {
+      allow get: if isSignedIn() && (resource.data.userId == request.auth.uid || isAdmin());
+      allow list: if isSignedIn();
+      allow create: if isSignedIn();
+      allow update: if isSignedIn() && (
+        resource.data.userId == request.auth.uid || isAdmin()
+      );
+      allow delete: if isSignedIn() && (
+        resource.data.userId == request.auth.uid || isAdmin()
+      );
+    }
+
+    // --- 9. Documents Collection ---
+    match /documents/{documentId} {
+      allow get: if isSignedIn() && (
+        resource.data.userId == request.auth.uid || isSupervisorOrAdmin()
+      );
+      allow list: if isSignedIn();
+      allow create: if isSignedIn() && (
+        incoming().userId == request.auth.uid || isSupervisorOrAdmin()
+      );
+      allow update, delete: if isSupervisorOrAdmin();
+    }
+  }
+}
